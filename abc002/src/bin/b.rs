@@ -1,19 +1,21 @@
-use proconio::input;
-use proconio::marker::Chars;
+use std::io::BufRead;
 
 fn main() {
-    input! {
-        w: Chars,
-    }
+    let stdin = std::io::stdin();
+    let mut stdin = stdin.lock();
+
+    let mut w = String::with_capacity(31);
+    stdin.read_line(&mut w).expect("read w");
+    let w = w.trim();
 
     let answer = solve(w);
 
     println!("{}", answer);
 }
 
-fn solve(w: Vec<char>) -> String {
-    w.into_iter()
-        .filter(|c| !is_vowel(*c))
+fn solve(w: &str) -> String {
+    w.chars()
+        .filter(|&c| !is_vowel(c))
         .collect()
 }
 
