@@ -1,12 +1,23 @@
 use std::fmt;
-
-use proconio::input;
-use proconio::marker::Bytes;
+use std::io::BufRead;
 
 fn main() {
-    input! {
-        n: u32,
-        mut v: [Bytes; n],
+    let stdin = std::io::stdin();
+    let mut stdin = stdin.lock();
+
+    let mut n = String::with_capacity(6);
+    stdin.read_line(&mut n).expect("read n");
+    let n: usize = n.trim_end().parse().expect("parse n");
+
+    let mut v = Vec::with_capacity(n);
+
+    for _ in 0..n {
+        let mut line = String::with_capacity(10);
+        stdin.read_line(&mut line).expect("read line");
+        let bytes = line.as_bytes();
+        let start = Time::new(&bytes[0..4]);
+        let end = Time::new(&bytes[5..9]);
+        v.push((start, end));
     }
 
     let answer = solve(v);
@@ -16,15 +27,7 @@ fn main() {
     }
 }
 
-fn solve(v: Vec<Vec<u8>>) -> Vec<(Time, Time)> {
-    let mut v = v.into_iter()
-        .map(|bytes| {
-            let start = Time::new(&bytes[0..4]);
-            let end = Time::new(&bytes[5..9]);
-            (start, end)
-        })
-        .collect::<Vec<(Time, Time)>>();
-
+fn solve(mut v: Vec<(Time, Time)>) -> Vec<(Time, Time)> {
     v.sort();
 
     let mut answer = Vec::with_capacity(v.len());

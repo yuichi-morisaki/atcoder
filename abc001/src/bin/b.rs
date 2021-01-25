@@ -1,11 +1,15 @@
-use proconio::input;
+use std::io::BufRead;
 
 fn main() {
-    input! {
-        m: u32,
-    }
+    let stdin = std::io::stdin();
+    let mut stdin = stdin.lock();
+
+    let mut m = String::with_capacity(7);
+    stdin.read_line(&mut m).expect("read m");
+    let m: u32 = m.trim_end().parse().expect("parse m");
 
     let vv = solve(m);
+
     println!("{:02}", vv);
 }
 

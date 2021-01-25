@@ -1,10 +1,17 @@
-use proconio::input;
+use std::io::BufRead;
 
 fn main() {
-    input! {
-        deg: u32,
-        dis: u32,
-    }
+    let stdin = std::io::stdin();
+    let mut stdin = stdin.lock();
+
+    let mut deg = Vec::with_capacity(5);
+    stdin.read_until(b' ', &mut deg).expect("read deg");
+    let deg = std::str::from_utf8(&deg).expect("deg from utf8");
+    let deg: u32 = deg.trim_end().parse().expect("parse deg");
+
+    let mut dis = String::with_capacity(6);
+    stdin.read_line(&mut dis).expect("read dis");
+    let dis: u32 = dis.trim_end().parse().expect("parse dis");
 
     let (dir, w) = solve(deg, dis);
 
