@@ -1,30 +1,51 @@
-use std::io::BufRead;
+use std::io::Read;
+
+const BUF_SIZE: usize = 6 + 1;
 
 fn main() {
-    let stdin = std::io::stdin();
-    let mut stdin = stdin.lock();
+    let mut buf = String::with_capacity(BUF_SIZE);
+    std::io::stdin().read_to_string(&mut buf).unwrap();
 
-    let mut m = String::with_capacity(7);
-    stdin.read_line(&mut m).expect("read m");
-    let m: u32 = m.trim_end().parse().expect("parse m");
-
+    let m = read(&buf);
     let vv = solve(m);
-
-    println!("{:02}", vv);
+    write(vv);
 }
 
-fn solve(m: u32) -> u32 {
-    if m < 100 {
-        0
-    } else if 100 <= m && m <= 5_000 {
-        m * 10 / 1000
-    } else if 6_000 <= m && m <= 30_000 {
-        m / 1000 + 50
-    } else if 35_000 <= m && m <= 70_000 {
-        (m / 1000 - 30) / 5 + 80
-    } else if 70_000 < m {
-        89
-    } else {
-        panic!("invalid input: {}", m);
+fn read(buf: &str) -> i32 {
+    let m: i32 = buf.trim().parse().unwrap();
+    assert!(0 <= m && m <= 100_000);
+
+    m
+}
+
+fn solve(m: i32) -> i32 {
+    let k = f64::from(m) / 1000.0;
+
+    if k < 0.1 {
+        return 0;
     }
+    if 0.1 <= k && k <= 5.0 {
+        let vv = k * 10.0;
+        assert_eq!(vv.fract(), 0.0);
+        return vv as i32;
+    }
+    if 6.0 <= k && k <= 30.0 {
+        let vv = k + 50.0;
+        assert_eq!(vv.fract(), 0.0);
+        return vv as i32;
+    }
+    if 35.0 <= k && k <= 70.0 {
+        let vv = (k - 30.0) / 5.0 + 80.0;
+        assert_eq!(vv.fract(), 0.0);
+        return vv as i32;
+    }
+    if 70.0 < k {
+        return 89;
+    }
+
+    panic!("invalid input");
+}
+
+fn write(vv: i32) {
+    println!("{:02}", vv);
 }

@@ -1,100 +1,63 @@
-use std::io::BufRead;
+use std::io::Read;
+
+const BUF_SIZE: usize = (4 + 1) + (5 + 1);
 
 fn main() {
-    let stdin = std::io::stdin();
-    let mut stdin = stdin.lock();
+    let mut buf = String::with_capacity(BUF_SIZE);
+    std::io::stdin().read_to_string(&mut buf).unwrap();
 
-    let mut deg = Vec::with_capacity(5);
-    stdin.read_until(b' ', &mut deg).expect("read deg");
-    let deg = std::str::from_utf8(&deg).expect("deg from utf8");
-    let deg: u32 = deg.trim_end().parse().expect("parse deg");
-
-    let mut dis = String::with_capacity(6);
-    stdin.read_line(&mut dis).expect("read dis");
-    let dis: u32 = dis.trim_end().parse().expect("parse dis");
-
+    let (deg, dis) = read(&buf);
     let (dir, w) = solve(deg, dis);
+    write(dir, w);
+}
+
+fn read(buf: &str) -> (i32, i32) {
+    let mut iter = buf.split_whitespace();
+
+    let deg: i32 = iter.next().unwrap().parse().unwrap();
+    assert!(0 <= deg && deg < 3600);
+
+    let dis: i32 = iter.next().unwrap().parse().unwrap();
+    assert!(0 <= dis && dis < 12000);
+
+    (deg, dis)
+}
+
+fn solve(deg: i32, dis: i32) -> (usize, i32) {
+    let deg = f64::from(deg) / 10.0;
+    let dir = ((deg + 11.25).rem_euclid(360.0)).div_euclid(22.5) as usize;
+
+    let speed = f64::from(dis) / 60.0;
+    let speed = (speed * 10.0).round() / 10.0;
+    let w = match speed {
+        s if  0.0 <= s && s <=  0.2 =>  0,
+        s if  0.3 <= s && s <=  1.5 =>  1,
+        s if  1.6 <= s && s <=  3.3 =>  2,
+        s if  3.4 <= s && s <=  5.4 =>  3,
+        s if  5.5 <= s && s <=  7.9 =>  4,
+        s if  8.0 <= s && s <= 10.7 =>  5,
+        s if 10.8 <= s && s <= 13.8 =>  6,
+        s if 13.9 <= s && s <= 17.1 =>  7,
+        s if 17.2 <= s && s <= 20.7 =>  8,
+        s if 20.8 <= s && s <= 24.4 =>  9,
+        s if 24.5 <= s && s <= 28.4 => 10,
+        s if 28.5 <= s && s <= 32.6 => 11,
+        s if 32.7 <= s => 12,
+        _ => panic!("invalid input"),
+    };
+
+    (dir, w)
+}
+
+fn write(dir: usize, w: i32) {
+    let directions = [
+        "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+        "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW",
+    ];
 
     if w == 0 {
-        println!("C 0");
+        println!("{} {}", "C", w);
     } else {
-        println!("{} {}", dir, w);
-    }
-}
-
-fn solve(deg: u32, dis: u32) -> (String, u32) {
-    let dir = direction(deg);
-    let wp = wind_power(dis);
-
-    (dir, wp)
-}
-
-fn wind_power(dis: u32) -> u32 {
-    let speed = (dis as f64 / 60.0 * 10.0).round() as u32;
-
-    if speed <= 2 { // always 0 <= speed
-        0
-    } else if 3 <= speed && speed <= 15 {
-        1
-    } else if 16 <= speed && speed <= 33 {
-        2
-    } else if 34 <= speed && speed <= 54 {
-        3
-    } else if 55 <= speed && speed <= 79 {
-        4
-    } else if 80 <= speed && speed <= 107 {
-        5
-    } else if 108 <= speed && speed <= 138 {
-        6
-    } else if 139 <= speed && speed <= 171 {
-        7
-    } else if 172 <= speed && speed <= 207 {
-        8
-    } else if 208 <= speed && speed <= 244 {
-        9
-    } else if 245 <= speed && speed <= 284 {
-        10
-    } else if 285 <= speed && speed <= 326 {
-        11
-    } else { // 327 <= speed
-        12
-    }
-}
-
-fn direction(deg: u32) -> String {
-    let deg = deg * 10;
-
-    if 1125 <= deg && deg < 3375 {
-        String::from("NNE")
-    } else if 3375 <= deg && deg < 5625 {
-        String::from("NE")
-    } else if 5625 <= deg && deg < 7875 {
-        String::from("ENE")
-    } else if 7875 <= deg && deg < 10125 {
-        String::from("E")
-    } else if 10125 <= deg && deg < 12375 {
-        String::from("ESE")
-    } else if 12375 <= deg && deg < 14625 {
-        String::from("SE")
-    } else if 14625 <= deg && deg < 16875 {
-        String::from("SSE")
-    } else if 16875 <= deg && deg < 19125 {
-        String::from("S")
-    } else if 19125 <= deg && deg < 21375 {
-        String::from("SSW")
-    } else if 21375 <= deg && deg < 23625 {
-        String::from("SW")
-    } else if 23625 <= deg && deg < 25875 {
-        String::from("WSW")
-    } else if 25875 <= deg && deg < 28125 {
-        String::from("W")
-    } else if 28125 <= deg && deg < 30375 {
-        String::from("WNW")
-    } else if 30375 <= deg && deg < 32625 {
-        String::from("NW")
-    } else if 32625 <= deg && deg < 34875 {
-        String::from("NNW")
-    } else {
-        String::from("N")
+        println!("{} {}", directions[dir], w);
     }
 }

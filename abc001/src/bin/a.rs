@@ -1,18 +1,32 @@
-use std::io::BufRead;
+use std::io::Read;
+
+const BUF_SIZE: usize = (4 + 1) * 2;
 
 fn main() {
-    let stdin = std::io::stdin();
-    let mut stdin = stdin.lock();
+    let mut buf = String::with_capacity(BUF_SIZE);
+    std::io::stdin().read_to_string(&mut buf).unwrap();
 
-    let mut h1 = String::with_capacity(5);
-    stdin.read_line(&mut h1).expect("read h1");
-    let h1: i32 = h1.trim_end().parse().expect("parse h1");
+    let (h1, h2) = read(&buf);
+    let diff = solve(h1, h2);
+    write(diff);
+}
 
-    let mut h2 = String::with_capacity(5);
-    stdin.read_line(&mut h2).expect("read h2");
-    let h2: i32 = h2.trim_end().parse().expect("parse h2");
+fn read(buf: &str) -> (i32, i32) {
+    let mut iter = buf.split_whitespace();
 
-    let answer = h1 - h2;
+    let h1: i32 = iter.next().unwrap().parse().unwrap();
+    assert!(0 <= h1 && h1 <= 2000);
 
-    println!("{}", answer);
+    let h2: i32 = iter.next().unwrap().parse().unwrap();
+    assert!(0 <= h2 && h2 <= 2000);
+
+    (h1, h2)
+}
+
+fn solve(h1: i32, h2: i32) -> i32 {
+    h1 - h2
+}
+
+fn write(diff: i32) {
+    println!("{}", diff);
 }
